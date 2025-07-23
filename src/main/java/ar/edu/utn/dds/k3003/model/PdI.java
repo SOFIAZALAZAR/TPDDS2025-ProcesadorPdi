@@ -1,0 +1,45 @@
+package ar.edu.utn.dds.k3003.model;
+
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+
+@Data
+@Entity
+public class PdI {
+    @Id
+    private String id;
+    private String hecho;
+    private String descripcion;
+    private String lugar;
+    private LocalDateTime momento;
+    private String contenido;
+    private List<String> etiquetas;
+    private Boolean fueProcesado = false;
+
+    public PdI(){}
+
+    public PdI(String id, String hechoId, String descripcion, String lugar, LocalDateTime momento, String contenido, List<String> etiquetas) {
+        this.id = id;
+        this.hecho = hechoId;
+        this.descripcion = descripcion;
+        this.lugar = lugar;
+        this.momento = momento;
+        this.contenido = contenido;
+        this.etiquetas = etiquetas;
+        this.fueProcesado = false;
+    }
+
+    public void agregarEtiqueta(){
+        etiquetas.add("Etiquetado");
+    }
+
+    public void setFueProcesado(){
+        fueProcesado = true;
+    }
+}
