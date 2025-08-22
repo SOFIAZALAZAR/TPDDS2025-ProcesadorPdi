@@ -36,12 +36,7 @@ public ResponseEntity<PdIDTO> obtenerPdiPorId(@PathVariable String id){
 
     @PostMapping
     public ResponseEntity<PdIDTO> crearPdi(@RequestBody PdIDTO pdi) {
-        /* FachadaSolicitudes mockSolicitudes = Mockito.mock(FachadaSolicitudes.class);
-        when(mockSolicitudes.estaActivo(pdi.hechoId())).thenReturn(true);
-        fachadaProcesadorPdI.setFachadaSolicitudes(mockSolicitudes);*/
-
         fachadaProcesadorPdI.setFachadaSolicitudes(new FakeFachadaSolicitudes());
-
         return ResponseEntity.ok(fachadaProcesadorPdI.procesar(pdi));
     }
 }
