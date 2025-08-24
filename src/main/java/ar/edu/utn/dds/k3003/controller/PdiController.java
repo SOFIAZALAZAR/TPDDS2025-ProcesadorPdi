@@ -14,7 +14,7 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 
 @RestController
-    @RequestMapping("/api/pdis")
+    @RequestMapping("/pdis")
 public class PdiController {
 
 private final FachadaProcesadorPdI fachadaProcesadorPdI;

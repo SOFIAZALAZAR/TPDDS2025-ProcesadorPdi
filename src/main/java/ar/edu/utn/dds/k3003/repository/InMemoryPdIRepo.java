@@ -21,15 +21,14 @@ public class InMemoryPdIRepo implements PdIRepository {
     }
 
     @Override
-    public List<PdI> findByHecho(String hecho) {
-        return pdis.stream()
-                .filter(p -> p.getHecho().equals(hecho))
+    public List<PdI> findByHechoId(String hechoId) {
+        return this.pdis.stream()
+                .filter(p -> hechoId.equals(p.getHechoId()))
                 .toList();
     }
 
     @Override
     public PdI save(PdI pdi) {
-        this.pdis.removeIf(p -> p.getId().equals(pdi.getId()));
         this.pdis.add(pdi);
         return pdi;
     }

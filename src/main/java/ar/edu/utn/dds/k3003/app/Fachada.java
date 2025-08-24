@@ -18,52 +18,36 @@ import java.util.*;
 public class Fachada implements FachadaProcesadorPdI {
 
     @Setter
-    private PdIRepository pdIRepository;
+    private PdIRepository Repository;
     private FachadaSolicitudes fachadaSolicitudes;
 
     public Fachada() {
-        this.pdIRepository = new InMemoryPdIRepo();
+        this.Repository = new InMemoryPdIRepo();
     }
 
     @Autowired
     public Fachada(PdIRepository pdIRepository) {
-        this.pdIRepository= pdIRepository;
+        this.Repository= pdIRepository;
     }
 
     @Override
     public PdIDTO procesar(PdIDTO pdIDTO) throws IllegalStateException {
-        if (this.fachadaSolicitudes == null) {
-            throw new IllegalStateException("FachadaSolicitudes no fue inyectada");
-        }
-        if (!this.fachadaSolicitudes.estaActivo(pdIDTO.hechoId())) {
-            throw new IllegalStateException("La solicitud no está activa");
-        }
-
+        ValidacionFachadaSolicitudes(pdIDTO);
         PdI pdI = convertirADomino(pdIDTO);
 
-        List<PdI> pdisPorHecho = this.pdIRepository.findByHecho(pdI.getHecho());
-
+        //Buscar si ya fue procesado
+        List<PdI> pdisPorHecho = this.Repository.findByHechoId(pdI.getHechoId());
         Optional<PdI> yaExistente = pdisPorHecho.stream()
-                .filter(existing -> sonIgualesSinId(existing, pdI))
+                .filter(existe -> sonIgualesSinId(existe, pdI))
                 .findFirst();
 
-        if (yaExistente.isPresent()) {
-            return convertirADto(yaExistente.get());
-        }
-
-        ProcesadorPdI procesadorPdI = new ProcesadorPdI();
-
-        String nuevoId = UUID.randomUUID().toString();
-        pdI.setId(nuevoId);
-
-        PdI procesado = procesadorPdI.procesar(pdI);
-        this.pdIRepository.save(procesado);
-        return convertirADto(procesado);
+        //Si ya existe lo convierte a dto y devuelve el ya existente, sino procesa el PdI nuevo y devuelve ese
+        return yaExistente.map(this::convertirADto).orElseGet(() -> procesarNuveoPdI(pdIDTO));
     }
 
     @Override
     public PdIDTO buscarPdIPorId(String pdiId) throws NoSuchElementException {
-        val pdiOptional = this.pdIRepository.findById(pdiId);
+        val pdiOptional = this.Repository.findById(pdiId);
         if(pdiOptional.isEmpty()){
             throw new NoSuchElementException(pdiId + " No Existe ");
         }
@@ -73,7 +57,7 @@ public class Fachada implements FachadaProcesadorPdI {
 
     @Override
     public List<PdIDTO> buscarPorHecho(String hecho) {
-        List<PdI> encontrados = pdIRepository.findByHecho(hecho);
+        List<PdI> encontrados = this.Repository.findByHechoId(hecho);
         if (encontrados.isEmpty()) {
             throw new NoSuchElementException("No se encontró PdI con hecho: " + hecho);
         }
@@ -85,8 +69,38 @@ public class Fachada implements FachadaProcesadorPdI {
         this.fachadaSolicitudes = fachadaSolicitudes;
     }
 
+//Metodos privados para mas claridad
+    private void ValidacionFachadaSolicitudes(PdIDTO entrada){
+        if (this.fachadaSolicitudes == null) {
+            throw new IllegalStateException("FachadaSolicitudes no fue inyectada");
+        }
+        if (!this.fachadaSolicitudes.estaActivo(entrada.hechoId())) {
+            throw new IllegalStateException("La solicitud no está activa");
+        }
+    }
+
+    private PdIDTO procesarNuveoPdI(PdIDTO entrada){
+        ProcesadorPdI procesador = new ProcesadorPdI();
+        PdI dominio = convertirADomino(entrada);
+        String nuevoId = UUID.randomUUID().toString();
+        dominio.setId(nuevoId);
+        PdI PdIprocesado = procesador.procesar(dominio);
+        this.Repository.save(PdIprocesado);
+
+        return convertirADto(PdIprocesado);
+    }
+
+    private boolean sonIgualesSinId(PdI a, PdI b) {
+        return a.getHechoId().equals(b.getHechoId()) &&
+                a.getDescripcion().equals(b.getDescripcion()) &&
+                a.getLugar().equals(b.getLugar()) &&
+                a.getMomento().equals(b.getMomento()) &&
+                a.getContenido().equals(b.getContenido());
+    }
+
+//Metodos privados para omision de logica repetida
     private PdIDTO convertirADto(PdI pdi){
-        return new PdIDTO(pdi.getId(), pdi.getHecho(), pdi.getDescripcion(),
+        return new PdIDTO(pdi.getId(), pdi.getHechoId(), pdi.getDescripcion(),
                 pdi.getLugar(), pdi.getMomento(),pdi.getContenido(),pdi.getEtiquetas());
     }
 
@@ -94,13 +108,5 @@ public class Fachada implements FachadaProcesadorPdI {
         return new PdI(pdiDTO.id(), pdiDTO.hechoId(), pdiDTO.descripcion(),
                 pdiDTO.lugar(), pdiDTO.momento(),pdiDTO.contenido(),
                 new ArrayList<>(pdiDTO.etiquetas()));
-    }
-
-    private boolean sonIgualesSinId(PdI a, PdI b) {
-        return a.getHecho().equals(b.getHecho()) &&
-                a.getDescripcion().equals(b.getDescripcion()) &&
-                a.getLugar().equals(b.getLugar()) &&
-                a.getMomento().equals(b.getMomento()) &&
-                a.getContenido().equals(b.getContenido());
     }
 }

@@ -4,7 +4,6 @@ public class ProcesadorPdI {
 
     public PdI procesar(PdI pdI) {
         pdI.agregarEtiqueta();
-        pdI.setFueProcesado();
         return pdI;
     }
 }

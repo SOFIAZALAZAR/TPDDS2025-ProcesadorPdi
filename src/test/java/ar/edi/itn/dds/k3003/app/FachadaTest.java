@@ -51,7 +51,7 @@ public class FachadaTest implements TestTP<FachadaProcesadorPdI> {
         repoCompartido.save(new PdI(ID_EXISTENTE_2, HECHO_EXISTENTE, INFO, UBICACION, FECHA, CONTENIDO, new ArrayList<>()));
 
         fachada = new Fachada(); // Sin pasar repo por constructor
-        fachada.setPdIRepository(repoCompartido);
+        fachada.setRepository(repoCompartido);
         fachada.setFachadaSolicitudes(fachadaSolicitudes);
     }
 
