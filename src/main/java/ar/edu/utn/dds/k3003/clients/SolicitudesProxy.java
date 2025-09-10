@@ -58,8 +58,8 @@ public class SolicitudesProxy implements FachadaSolicitudes {
 
     @SneakyThrows
     @Override
-    public boolean estaActivo(String id) {
-        Response<Boolean> response = service.estaActivo(id).execute();
+    public boolean estaActivo(String hechoid) {
+        Response<Boolean> response = service.estaActivo(hechoid).execute();
         if (!response.isSuccessful()) {
             throw new RuntimeException("Error al consultar el estado de la solicitud: " + response.code());
         }
@@ -70,7 +70,7 @@ public class SolicitudesProxy implements FachadaSolicitudes {
         }
 
         if (!activo) {
-            throw new IllegalStateException("La solicitud con id " + id + " no está activa.");
+            throw new IllegalStateException("La solicitud con id " + hechoid + " no está activa.");
         }
         return activo;
     }

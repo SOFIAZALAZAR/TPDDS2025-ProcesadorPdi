@@ -80,12 +80,11 @@ public class Fachada implements FachadaProcesadorPdI {
     }
 
     private PdIDTO procesarNuveoPdI(PdIDTO entrada){
+        fachadaSolicitudes.estaActivo(entrada.hechoId()); // Si esta línea no lanza una excepción expresada en el Proxy, el hecho está activo
         ProcesadorPdI procesador = new ProcesadorPdI();
         PdI dominio = convertirADomino(entrada);
-
         PdI PdIprocesado = procesador.procesar(dominio);
         this.Repository.save(PdIprocesado);
-
         return convertirADto(PdIprocesado);
     }
 

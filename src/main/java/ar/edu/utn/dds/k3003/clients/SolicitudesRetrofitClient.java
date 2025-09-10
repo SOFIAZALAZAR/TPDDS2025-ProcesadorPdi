@@ -9,7 +9,7 @@ import retrofit2.http.Path;
 
 @Profile("deploy")
 public interface SolicitudesRetrofitClient {
-    @GET("solicitudes/{id}/activo")
-    Call<Boolean>estaActivo(@Path ("id") String id);
+    @GET("solicitudes/hecho/{hechoId}")
+    Call<Boolean>estaActivo(@Path ("hechoId") String hechoid);
 
 }
