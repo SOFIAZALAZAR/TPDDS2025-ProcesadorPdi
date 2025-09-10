@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("!test")
+@Profile("Deploy")
 
-public interface JpaPdiRepository extends JpaRepository<PdI, String>, PdIRepository {
+public interface JpaPdiRepository extends JpaRepository<PdI, Long>, PdIRepository {
+
 }

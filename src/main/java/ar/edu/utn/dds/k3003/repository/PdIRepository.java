@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PdIRepository {
-    Optional<PdI> findById(String id);
+    Optional<PdI> findById(Long id);
     List<PdI> findByHechoId(String hechoId);;
     PdI save(PdI pdi);
 }

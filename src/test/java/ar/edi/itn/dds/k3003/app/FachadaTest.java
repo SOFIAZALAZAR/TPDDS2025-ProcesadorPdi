@@ -1,9 +1,9 @@
 package ar.edi.itn.dds.k3003.app;
 
+import ar.edu.utn.dds.k3003.facades.FachadaProcesadorPdI;
 import ar.edu.utn.dds.k3003.repository.InMemoryPdIRepo;
 import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.model.PdI;
-import ar.edu.utn.dds.k3003.facades.FachadaProcesadorPdI;
 import ar.edu.utn.dds.k3003.facades.FachadaSolicitudes;
 import ar.edu.utn.dds.k3003.facades.dtos.PdIDTO;
 import ar.edu.utn.dds.k3003.tests.TestTP;
@@ -47,8 +47,8 @@ public class FachadaTest implements TestTP<FachadaProcesadorPdI> {
     void setUp() {
         repoCompartido = new InMemoryPdIRepo();
 
-        repoCompartido.save(new PdI(ID_EXISTENTE_1, HECHO_EXISTENTE, INFO, UBICACION, FECHA, CONTENIDO, new ArrayList<>()));
-        repoCompartido.save(new PdI(ID_EXISTENTE_2, HECHO_EXISTENTE, INFO, UBICACION, FECHA, CONTENIDO, new ArrayList<>()));
+        repoCompartido.save(new PdI(HECHO_EXISTENTE, INFO, UBICACION, FECHA, CONTENIDO, new ArrayList<>()));
+        repoCompartido.save(new PdI(HECHO_EXISTENTE, INFO, UBICACION, FECHA, CONTENIDO, new ArrayList<>()));
 
         fachada = new Fachada(); // Sin pasar repo por constructor
         fachada.setRepository(repoCompartido);

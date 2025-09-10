@@ -1,20 +1,22 @@
 package ar.edu.utn.dds.k3003.app;
 
+import ar.edu.utn.dds.k3003.facades.FachadaProcesadorPdI;
 import ar.edu.utn.dds.k3003.repository.InMemoryPdIRepo;
 import ar.edu.utn.dds.k3003.model.PdI;
 import ar.edu.utn.dds.k3003.model.ProcesadorPdI;
 import ar.edu.utn.dds.k3003.facades.FachadaSolicitudes;
-import ar.edu.utn.dds.k3003.facades.FachadaProcesadorPdI;
 import ar.edu.utn.dds.k3003.facades.dtos.PdIDTO;
 import ar.edu.utn.dds.k3003.repository.PdIRepository;
 import lombok.Setter;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Service
+@Transactional
 public class Fachada implements FachadaProcesadorPdI {
 
     @Setter
@@ -26,8 +28,9 @@ public class Fachada implements FachadaProcesadorPdI {
     }
 
     @Autowired
-    public Fachada(PdIRepository pdIRepository) {
+    public Fachada(PdIRepository pdIRepository, FachadaSolicitudes fachadaSolicitudes) {
         this.Repository= pdIRepository;
+        this.fachadaSolicitudes = fachadaSolicitudes;
     }
 
     @Override
@@ -47,7 +50,8 @@ public class Fachada implements FachadaProcesadorPdI {
 
     @Override
     public PdIDTO buscarPdIPorId(String pdiId) throws NoSuchElementException {
-        val pdiOptional = this.Repository.findById(pdiId);
+
+        val pdiOptional = this.Repository.findById(Long.parseLong(pdiId));
         if(pdiOptional.isEmpty()){
             throw new NoSuchElementException(pdiId + " No Existe ");
         }
@@ -74,7 +78,7 @@ public class Fachada implements FachadaProcesadorPdI {
         if (this.fachadaSolicitudes == null) {
             throw new IllegalStateException("FachadaSolicitudes no fue inyectada");
         }
-        if (!this.fachadaSolicitudes.estaActivo(entrada.hechoId())) {
+        if (!this.fachadaSolicitudes.estaActivo(entrada.id())) {
             throw new IllegalStateException("La solicitud no está activa");
         }
     }
@@ -82,8 +86,7 @@ public class Fachada implements FachadaProcesadorPdI {
     private PdIDTO procesarNuveoPdI(PdIDTO entrada){
         ProcesadorPdI procesador = new ProcesadorPdI();
         PdI dominio = convertirADomino(entrada);
-        String nuevoId = UUID.randomUUID().toString();
-        dominio.setId(nuevoId);
+
         PdI PdIprocesado = procesador.procesar(dominio);
         this.Repository.save(PdIprocesado);
 
@@ -100,12 +103,12 @@ public class Fachada implements FachadaProcesadorPdI {
 
 //Metodos privados para omision de logica repetida
     private PdIDTO convertirADto(PdI pdi){
-        return new PdIDTO(pdi.getId(), pdi.getHechoId(), pdi.getDescripcion(),
+        return new PdIDTO(String.valueOf(pdi.getId()), pdi.getHechoId(), pdi.getDescripcion(),
                 pdi.getLugar(), pdi.getMomento(),pdi.getContenido(),pdi.getEtiquetas());
     }
 
     private PdI convertirADomino(PdIDTO pdiDTO){
-        return new PdI(pdiDTO.id(), pdiDTO.hechoId(), pdiDTO.descripcion(),
+        return new PdI(Long.parseLong(pdiDTO.id()),pdiDTO.hechoId(), pdiDTO.descripcion(),
                 pdiDTO.lugar(), pdiDTO.momento(),pdiDTO.contenido(),
                 new ArrayList<>(pdiDTO.etiquetas()));
     }
