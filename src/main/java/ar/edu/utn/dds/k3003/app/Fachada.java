@@ -29,8 +29,6 @@ public class Fachada implements FachadaProcesadorPdI {
         this.fachadaSolicitudes = fachadaSolicitudes;
     }
 
-
-
     @Override
     public PdIDTO procesar(PdIDTO pdIDTO) throws IllegalStateException {
         ValidacionFachadaSolicitudes(pdIDTO);
