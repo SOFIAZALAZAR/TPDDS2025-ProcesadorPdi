@@ -22,14 +22,14 @@ public class Fachada implements FachadaProcesadorPdI {
     @Setter
     private PdIRepository Repository;
     private FachadaSolicitudes fachadaSolicitudes;
-    
+
     @Autowired
     public Fachada(PdIRepository pdIRepository, FachadaSolicitudes fachadaSolicitudes) {
         this.Repository= pdIRepository;
         this.fachadaSolicitudes = fachadaSolicitudes;
     }
 
-    public Fachada(){}
+
 
     @Override
     public PdIDTO procesar(PdIDTO pdIDTO) throws IllegalStateException {

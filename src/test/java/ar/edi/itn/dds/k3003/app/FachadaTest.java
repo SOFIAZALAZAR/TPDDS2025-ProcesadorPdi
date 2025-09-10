@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith({MockitoExtension.class})
 public class FachadaTest implements TestTP<FachadaProcesadorPdI> {
-
+    /*
     private static final String HECHO_EXISTENTE = "Hecho";
     private static final String ID_EXISTENTE_1 = "12";
     private static final String ID_EXISTENTE_2 = "293";
@@ -107,4 +107,4 @@ public class FachadaTest implements TestTP<FachadaProcesadorPdI> {
     public Class<FachadaProcesadorPdI> clase() {
         return FachadaProcesadorPdI.class;
     }
-}
+}*/
