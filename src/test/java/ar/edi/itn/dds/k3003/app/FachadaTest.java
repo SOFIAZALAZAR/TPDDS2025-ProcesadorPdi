@@ -99,7 +99,7 @@ public class FachadaTest implements TestTP<FachadaProcesadorPdI> {
             fachada.buscarPorHecho(HECHO_INEXISTENTE);
         });
     }
-
+*/
     public String paquete() {
         return "ar.edu.utn.dds.k3003.tests.pdi";
     }
@@ -107,5 +107,5 @@ public class FachadaTest implements TestTP<FachadaProcesadorPdI> {
     public Class<FachadaProcesadorPdI> clase() {
         return FachadaProcesadorPdI.class;
     }
-*/
+
 }
