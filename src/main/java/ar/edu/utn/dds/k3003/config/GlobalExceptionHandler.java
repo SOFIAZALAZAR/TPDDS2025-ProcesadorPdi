@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@ControllerAdvice(basePackages = "ar.edu.utn.dds.k3003.controller")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException.class)

@@ -12,6 +12,7 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.*;
 
@@ -22,26 +23,41 @@ public class Fachada implements FachadaProcesadorPdI {
     @Setter
     private PdIRepository Repository;
     private FachadaSolicitudes fachadaSolicitudes;
+    private MeterRegistry meterRegistry;
 
     @Autowired
     public Fachada(PdIRepository pdIRepository, FachadaSolicitudes fachadaSolicitudes) {
         this.Repository= pdIRepository;
         this.fachadaSolicitudes = fachadaSolicitudes;
+        this.meterRegistry = meterRegistry;
     }
 
     @Override
-    public PdIDTO procesar(PdIDTO pdIDTO) throws IllegalStateException {
-        ValidacionFachadaSolicitudes(pdIDTO);
-        PdI pdI = convertirADomino(pdIDTO);
+    public PdIDTO procesar(PdIDTO pdIDTO) {
+        try {
+            // Validación con solicitudes
+            ValidacionFachadaSolicitudes(pdIDTO);
 
-        //Buscar si ya fue procesado
-        List<PdI> pdisPorHecho = this.Repository.findByHechoId(pdI.getHechoId());
-        Optional<PdI> yaExistente = pdisPorHecho.stream()
-                .filter(existe -> sonIgualesSinId(existe, pdI))
-                .findFirst();
+            // Si ya existe
+            Optional<PdI> yaExistente = repository.findByHechoId(pdIDTO.hechoId())
+                    .stream()
+                    .filter(p -> sonIgualesSinId(p, convertirADomino(pdIDTO)))
+                    .findFirst();
 
-        //Si ya existe lo convierte a dto y devuelve el ya existente, sino procesa el PdI nuevo y devuelve ese
-        return yaExistente.map(this::convertirADto).orElseGet(() -> procesarNuveoPdI(pdIDTO));
+            if (yaExistente.isPresent()) {
+                meterRegistry.counter("dds.pdi.procesar", "status", "reused").increment();
+                return convertirADto(yaExistente.get());
+            }
+
+            // Nuevo
+            PdIDTO procesado = procesarNuveoPdI(pdIDTO);
+            meterRegistry.counter("dds.pdi.procesar", "status", "new").increment();
+            return procesado;
+
+        } catch (IllegalStateException e) {
+            meterRegistry.counter("dds.pdi.procesar", "status", "error").increment();
+            throw e;
+        }
     }
 
     @Override
