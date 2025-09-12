@@ -33,30 +33,26 @@ public class Fachada implements FachadaProcesadorPdI {
     }
 
     @Override
-    public PdIDTO procesar(PdIDTO pdIDTO) {
-        try {
-            // Validación con solicitudes
-            ValidacionFachadaSolicitudes(pdIDTO);
+    public PdIDTO procesar(PdIDTO pdIDTO) throws IllegalStateException {
+        ValidacionFachadaSolicitudes(pdIDTO);
+        PdI pdI = convertirADomino(pdIDTO);
 
-            // Si ya existe
-            Optional<PdI> yaExistente = repository.findByHechoId(pdIDTO.hechoId())
-                    .stream()
-                    .filter(p -> sonIgualesSinId(p, convertirADomino(pdIDTO)))
-                    .findFirst();
+        //Buscar si ya fue procesado
+        List<PdI> pdisPorHecho = this.Repository.findByHechoId(pdI.getHechoId());
+        Optional<PdI> yaExistente = pdisPorHecho.stream()
+                .filter(existe -> sonIgualesSinId(existe, pdI))
+                .findFirst();
 
-            if (yaExistente.isPresent()) {
-                meterRegistry.counter("dds.pdi.procesar", "status", "reused").increment();
-                return convertirADto(yaExistente.get());
-            }
-
-            // Nuevo
-            PdIDTO procesado = procesarNuveoPdI(pdIDTO);
+        //Si ya existe lo convierte a dto y devuelve el ya existente, sino procesa el PdI nuevo y devuelve ese
+        //return yaExistente.map(this::convertirADto).orElseGet(() -> procesarNuveoPdI(pdIDTO));
+        if (yaExistente.isPresent()) {
+            // ✅ Contador para PDI reusados
+            meterRegistry.counter("dds.pdi.procesar", "status", "reused").increment();
+            return convertirADto(yaExistente.get());
+        } else {
+            // ✅ Contador para PDI nuevos
             meterRegistry.counter("dds.pdi.procesar", "status", "new").increment();
-            return procesado;
-
-        } catch (IllegalStateException e) {
-            meterRegistry.counter("dds.pdi.procesar", "status", "error").increment();
-            throw e;
+            return procesarNuveoPdI(pdIDTO);
         }
     }
 
