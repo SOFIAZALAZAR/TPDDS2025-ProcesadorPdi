@@ -34,6 +34,13 @@ public class PdiController {
     public ResponseEntity<PdIDTO> crearPdi(@RequestBody PdIDTO pdi) {
         return ResponseEntity.ok(fachadaProcesadorPdI.procesar(pdi));
     }
+
+    @DeleteMapping
+    public ResponseEntity<Void> eliminarTodos() {
+        fachadaProcesadorPdI.eliminarTodos();
+        return ResponseEntity.noContent().build(); // 204 No Content
+    }
+
 }
 
 

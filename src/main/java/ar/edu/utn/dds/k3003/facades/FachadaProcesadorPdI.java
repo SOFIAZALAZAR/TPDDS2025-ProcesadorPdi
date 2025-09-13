@@ -14,4 +14,6 @@ public interface FachadaProcesadorPdI {
     List<PdIDTO> buscarPorHecho(String var1) throws NoSuchElementException;
 
     void setFachadaSolicitudes(FachadaSolicitudes var1);
+
+    void eliminarTodos();
 }

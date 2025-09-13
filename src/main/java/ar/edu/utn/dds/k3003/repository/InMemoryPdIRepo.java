@@ -36,4 +36,10 @@ public class InMemoryPdIRepo implements PdIRepository {
         this.pdis.add(pdi);
         return pdi;
     }
+
+    @Override
+    public void deleteAll() {
+        pdis.clear();
+    }
+
 }

@@ -44,8 +44,8 @@ public class Fachada implements FachadaProcesadorPdI {
                 .findFirst();
 
         //Si ya existe lo convierte a dto y devuelve el ya existente, sino procesa el PdI nuevo y devuelve ese
-        //return yaExistente.map(this::convertirADto).orElseGet(() -> procesarNuveoPdI(pdIDTO));
-        if (yaExistente.isPresent()) {
+        return yaExistente.map(this::convertirADto).orElseGet(() -> procesarNuveoPdI(pdIDTO));
+        /*if (yaExistente.isPresent()) {
             // ✅ Contador para PDI reusados
             meterRegistry.counter("dds.pdi.procesar", "status", "reused").increment();
             return convertirADto(yaExistente.get());
@@ -53,7 +53,7 @@ public class Fachada implements FachadaProcesadorPdI {
             // ✅ Contador para PDI nuevos
             meterRegistry.counter("dds.pdi.procesar", "status", "new").increment();
             return procesarNuveoPdI(pdIDTO);
-        }
+        }*/
     }
 
     @Override
@@ -119,4 +119,10 @@ public class Fachada implements FachadaProcesadorPdI {
                 pdiDTO.lugar(), pdiDTO.momento(),pdiDTO.contenido(),
                 new ArrayList<>(pdiDTO.etiquetas()));
     }
+
+    @Override
+    public void eliminarTodos() {
+        Repository.deleteAll();
+    }
+
 }
